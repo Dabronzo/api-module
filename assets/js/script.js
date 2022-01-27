@@ -27,7 +27,17 @@ async function getStatus(e){
 
     //check if the response from fetch happens
     if (response.ok){
-        console.log(data);
+        displayStatus(data);
+    } else{
+        throw new Error(data.error);
     }
+
+}
+
+function displayStatus(data){
+    document.getElementById("resultsModalTitle").innerText = "API Key Status";
+    document.getElementById("results-content").innerHTML = `<p>Your key is valid until: ${data.expiry}</p>`;
+
+    resultModal.show();
 
 }
