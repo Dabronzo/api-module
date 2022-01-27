@@ -54,7 +54,7 @@ async function postForm(e){
     const data = await response.json();
 
     if (response.ok){
-        console.log(data);
+        displayResusts(data);
 
     } else{
         throw new Error(data.error);
@@ -64,11 +64,24 @@ async function postForm(e){
 }
 
 function displayResusts(data){
+    let results = "";
     let resultHeading = "JSHint Results";
-    
 
     document.getElementById("resultsModalTitle").innerText = resultHeading;
-    document.getElementById("results-content").innerHTML = `<p>Your key is valid until: ${data.expiry}</p>`;
+    if(data.total_errors === 0){
+        results = `<div class="no-errors">No errors were found</div>`;
+    } else{
+        results = `<p>Total errors found: <span class"total-errors">${data.total_errors}</span></p>`;
+        for(let error of data.error_list){
+            results += `<div>At line <span class="line">${error.line}</span>, `;
+            results += `column <span class="column">${error.col}:</span></div>`;
+            results += `<div class="error">${error.error}</div>`;
+        }
+    }
+    document.getElementById("results-content").innerHTML = results;
+    resultModal.show();
+
+
 
 }
 
