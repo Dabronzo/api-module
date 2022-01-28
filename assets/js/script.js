@@ -32,15 +32,61 @@ async function getStatus(e){
     if (response.ok){
         displayStatus(data);
     } else{
+        displayExceptions(data);
         throw new Error(data.error);
     }
 
 }
 
+//since that all the options are being sent not in the format that the api expect we will process in this function
+//this function will take use of some methods of the "FormData" object of javascript
+function processOption(form){
+    //iterate the options
+    //push the options to an temporary empty array
+    //convert to string
+
+    let optArr = []
+    for (let entry of form.entries()){
+        //each enty es an array with a key and a value, so the first is always the key
+        if (entry[0] === 'options'){
+            optArr.push(entry[1]);
+
+        }
+    }
+    //now we will delete the current "options" of the form and append our processed one
+    //with the specifications of the api
+    form.delete("options");
+    //at the apend we use the "join()" method to conver the array in a string
+    //that by default is separated with a come
+    form.append("options", optArr.join());
+
+    return form;
+
+}
+
+function displayExceptions(err){
+    let errorHeading = "An Exception Occured";
+    let errorResults = `<p>The API returned status code: <strong>${err.status_code}</strong></p>
+                        <p>Error number: <strong>${err.error_no}</strong></p>
+                        <p>Error text: <strong>${err.error}</strong></p>`;
+
+    document.getElementById("resultsModalTitle").innerText = errorHeading;
+    document.getElementById("results-content").innerHTML = errorResults;
+
+    resultModal.show();
+}
 
 async function postForm(e){
     //then we create a form varible as a javascript object FormData
-    const form = new FormData(document.getElementById("checksform"));
+    //we use the "processOption" function passing the new formData instatiated with the html
+    //form gottem by id
+    const form = processOption(new FormData(document.getElementById("checksform")));
+
+    //test to check the form entries
+
+    //for (let entry of form.entries()){
+    //    console.log(entry);
+    //}
 
     //here we take the response from the fetch, used as exeple on the api documentation
     const response = await fetch(API_URL, {
@@ -57,11 +103,13 @@ async function postForm(e){
         displayResusts(data);
 
     } else{
+        displayExceptions(data);
         throw new Error(data.error);
     }
 
 
 }
+
 
 function displayResusts(data){
     let results = "";
